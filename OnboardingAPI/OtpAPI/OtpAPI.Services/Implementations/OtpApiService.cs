@@ -78,6 +78,52 @@ namespace OtpAPI.OtpAPI.Services.Implementations
             };
             return mappedresponse;
         }
+
+        public async Task<Otp> RequestVerificationOTP(VerificationDto verificationDto)
+        {
+            var accountVerification = await _otpApiRepository.GetOtpByPhoneNumber(verificationDto.PhoneNumber);
+            var code = Guid.NewGuid().ToString("N").Substring(0, 5);
+
+            if (accountVerification != null)
+            {
+                accountVerification.OtpCode = code;
+                accountVerification.ExpiresIn = DateTime.Now.AddMinutes(5);
+                accountVerification.IsVerified = false;
+                accountVerification.PhoneNumber = verificationDto.PhoneNumber;
+                _otpApiRepository.UpdateOtp(accountVerification);
+
+            }
+              else
+            {
+                var verification = new Otp
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    OtpCode = code,
+                    ExpiresIn = DateTime.Now.AddMinutes(10),
+                    IsVerified = false,
+                    PhoneNumber = verificationDto.PhoneNumber
+                };
+               _otpApiRepository.AddOtp(verification);
+            }
+
+            return new Otp()
+            {
+                OtpCode = code,
+                PhoneNumber = verificationDto.PhoneNumber
+            };
+        }
+
+        public async Task<OtpConfirmationToReturnDto> ValidateOTP(VerifyOtpDto verifyOtpDto)
+        {
+            var phoneVerification = await _otpApiRepository.GetOtpByCodeAndPhoneNumber(verifyOtpDto.PhoneNumber, verifyOtpDto.OtpCode);
+
+            if (phoneVerification == null)
+                return new OtpConfirmationToReturnDto() { Confirmation = false, Status = false.ToString()};
+
+            phoneVerification.IsVerified = true;
+            _otpApiRepository.UpdateOtp(phoneVerification);
+            return new OtpConfirmationToReturnDto() { Confirmation = true, Status = true.ToString() };
+        }
     }
 
 }     

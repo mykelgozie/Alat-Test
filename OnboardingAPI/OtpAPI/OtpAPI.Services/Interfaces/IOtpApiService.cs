@@ -1,4 +1,5 @@
-﻿using OtpAPI.OtpAPI.Models.DTOs;
+﻿using OtpAPI.OtpAPI.Models;
+using OtpAPI.OtpAPI.Models.DTOs;
 using System.Threading.Tasks;
 
 namespace OtpAPI.OtpAPI.Services.Interfaces
@@ -7,5 +8,7 @@ namespace OtpAPI.OtpAPI.Services.Interfaces
     {
         Task<OtpToReturnDto> VerifyPhoneNumber(string id, string phoneNumber);
         Task<OtpConfirmationToReturnDto> VerifyOtp(string otpCode);
+        Task<Otp> RequestVerificationOTP(VerificationDto verificationDto);
+        Task<OtpConfirmationToReturnDto> ValidateOTP(VerifyOtpDto verifyOtpDto);
     }
 }

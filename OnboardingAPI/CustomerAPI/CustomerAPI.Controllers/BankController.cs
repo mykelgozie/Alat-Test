@@ -19,7 +19,7 @@ namespace CustomerAPI.CustomerAPI.Controllers
             _bankService = bankService;
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> Banks()
         {
           var result = await _bankService.GetBanksAsync();

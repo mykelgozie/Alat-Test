@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OtpAPI.OtpAPI.Data.Repositories.Interfaces;
 using OtpAPI.OtpAPI.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,31 @@ namespace OtpAPI.OtpAPI.Data.Repositories.Implementations
             var model= _context.Otps.First(c => c.Id == otpId);
             _context.Remove(model);
             _context.SaveChanges();            
+        }
+
+        public void UpdateOtp(Otp otp)
+        {
+            _context.Update(otp);
+            _context.SaveChanges();
+        }
+
+        public void AddOtp(Otp otp)
+        {
+            _context.Add(otp);
+            _context.SaveChanges();
+        }
+
+
+        public async Task<Otp> GetOtpByPhoneNumber(string phonumber)
+        {
+            return await _context.Otps.Include(y => y.OtpUser)
+                                .Where(x => x.PhoneNumber == phonumber)
+                                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Otp> GetOtpByCodeAndPhoneNumber(string phonumber, string code)
+        {
+            return await _context.Otps.Include(y => y.OtpUser).FirstOrDefaultAsync(x => x.OtpCode == code && x.PhoneNumber == phonumber && x.ExpiresIn > DateTime.Now); 
         }
     }
 }
